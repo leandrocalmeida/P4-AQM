@@ -1,0 +1,36 @@
+---
+- hosts: all
+  tasks:
+  - name: Enable interface
+    command: ifconfig enp0s9 up #Dash-S1
+    become: yes
+  
+  - name: Enable interface
+    command: ifconfig enp0s10 up #S1-S2
+    become: yes
+  
+  - name: Adjust clock timezone
+    command: timedatectl set-timezone UTC
+    become: yes
+  
+  - name: Compile p4 code
+    command: p4c -b bmv2 /vagrant/p4/routing_ipv4.p4 -o /vagrant/p4/routing_ipv4
+    become: yes
+  
+  - name: Start Bmv2 Switch
+    shell: simple_switch --device-id 1 --thrift-port 9090 --interface 0@enp0s9 --interface 1@enp0s10  /vagrant/p4/routing_ipv4/routing_ipv4.json &
+    async: 1000
+    poll: 5
+    become: yes
+  
+  - name: Insert entries in switch table by control plane
+    shell: cat /vagrant/p4/tablesw1.txt | simple_switch_CLI
+    become: yes
+  
+  - name: Turn off GSO, TSO and GRO
+    command: ethtool --offload enp0s9 gso off tso off gro off
+    become: yes
+ 
+  - name: Turn off GSO, TSO and GRO
+    command: ethtool --offload enp0s10 gso off tso off gro off
+    become: yes

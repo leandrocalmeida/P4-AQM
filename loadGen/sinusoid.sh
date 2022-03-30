@@ -1,0 +1,1 @@
+python2.7 /vagrant/loadGen/sinusoid.py -l http://192.168.50.50/videos/playlist.xspf -s 5,2 10 30

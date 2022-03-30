@@ -1,0 +1,23 @@
+---
+- hosts: all
+  tasks:
+  - name: Install packages and dependencies
+    apt: name={{ item }} update_cache=yes
+    loop: ['apache2','net-tools','python3-scapy','python3-pip']
+    become: yes
+
+  - name: Adjust arp table for client VLC
+    command: ip neighbor add 192.168.50.51 lladdr 08:00:27:00:00:01 dev enp0s8 nud permanent
+    become: yes
+    
+  - name: Adjust arp table for loadGen1
+    command: ip neighbor add 192.168.50.52 lladdr 08:00:27:00:00:02 dev enp0s8 nud permanent
+    become: yes
+  
+  - name: Adjust arp table for loadGen2
+    command: ip neighbor add 192.168.50.53 lladdr 08:00:27:00:00:03 dev enp0s8 nud permanent
+    become: yes
+ 
+  - name: Adjust clock timezone
+    command: timedatectl set-timezone UTC
+    become: yes
